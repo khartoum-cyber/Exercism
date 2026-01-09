@@ -1,8 +1,13 @@
 static class Badge
 {
-    public static string Print(int? id, string name, string? department) => id switch
+    public static string Print(int? id, string name, string? department)
     {
-        null => $"{name} - {department?.ToUpper() ?? "OWNER"}",
-        _ => $"[{id}] - {name} - {department?.ToUpper() ?? "OWNER"}"
-    };
+        
+        var deptLabel = department is null ? "OWNER" : department.ToUpperInvariant();
+
+        return id is null
+            ? $"{name} - {deptLabel}"
+            : $"[{id}] - {name} - {deptLabel}";
+
+    }
 }
