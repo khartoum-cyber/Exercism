@@ -1,8 +1,8 @@
-using System;
-
 public class Player
 {
-    private readonly Random _randomNumber = new();
-    public int RollDie() => _randomNumber.Next(1, 19);
-    public double GenerateSpellStrength() => _randomNumber.NextDouble() * 100;
+    Random rnd = new();
+    
+    public int RollDie() => rnd.Next(1, 19);
+
+    public double GenerateSpellStrength() => rnd.NextDouble() * 100.0;
 }
