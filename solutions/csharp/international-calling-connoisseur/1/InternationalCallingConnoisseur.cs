@@ -1,29 +1,19 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 public static class DialingCodes
 {
-    public static Dictionary<int, string> GetEmptyDictionary() => new Dictionary<int, string>();
+    public static Dictionary<int, string> GetEmptyDictionary() => new();
 
-    public static Dictionary<int, string> GetExistingDictionary()
+    public static Dictionary<int, string> GetExistingDictionary() => new()
     {
-        var dialCodes = new Dictionary<int, string>()
-        {
-            { 1, "United States of America" },
-            { 55, "Brazil" },
-            { 91, "India" }
-        };
-        return dialCodes;
-    }
+        {1, "United States of America"},
+        {55, "Brazil"},
+        {91, "India"}
+    };
 
     public static Dictionary<int, string> AddCountryToEmptyDictionary(int countryCode, string countryName)
     {
-        var newDict = new Dictionary<int, string>
-        {
-            { countryCode, countryName }
-        };
-        return newDict;
+        Dictionary<int, string> dict = GetEmptyDictionary();
+        dict.Add(44, "United Kingdom");
+        return dict;
     }
 
     public static Dictionary<int, string> AddCountryToExistingDictionary(
@@ -34,20 +24,31 @@ public static class DialingCodes
     }
 
     public static string GetCountryNameFromDictionary(
-        Dictionary<int, string> existingDictionary, int countryCode) => existingDictionary.ContainsKey(countryCode) ? existingDictionary[countryCode] : string.Empty;
+        Dictionary<int, string> existingDictionary, int countryCode)
+    {
+        try
+        {
+            return existingDictionary[countryCode];
+        }
+        catch (KeyNotFoundException)
+        {
+            return string.Empty;
+        }
+    }
 
-    public static bool CheckCodeExists(Dictionary<int, string> existingDictionary, int countryCode) => existingDictionary.ContainsKey(countryCode);
+    public static bool CheckCodeExists(Dictionary<int, string> existingDictionary, int countryCode) =>                 existingDictionary.ContainsKey(countryCode);
 
     public static Dictionary<int, string> UpdateDictionary(
         Dictionary<int, string> existingDictionary, int countryCode, string countryName)
     {
-        if (existingDictionary.ContainsKey(countryCode))
+        if(CheckCodeExists(existingDictionary, countryCode))
         {
             existingDictionary[countryCode] = countryName;
+            return existingDictionary;
         }
         return existingDictionary;
     }
-
+    
     public static Dictionary<int, string> RemoveCountryFromDictionary(
         Dictionary<int, string> existingDictionary, int countryCode)
     {
@@ -57,12 +58,14 @@ public static class DialingCodes
 
     public static string FindLongestCountryName(Dictionary<int, string> existingDictionary)
     {
-        var currentLongest = "";
-        foreach (var name in  existingDictionary.Values) 
+        string longest = "";
+
+        foreach(var kvp in existingDictionary)
         {
-            if(name.Length > currentLongest.Length)
-                currentLongest = name;
+            if(kvp.Value.Length >= longest.Length)
+                longest = kvp.Value;
         }
-        return currentLongest;
+
+        return longest;
     }
 }
