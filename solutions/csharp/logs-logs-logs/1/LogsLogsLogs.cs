@@ -1,6 +1,5 @@
-using System;
-
-public enum LogLevel
+// TODO: define the 'LogLevel' enum
+enum LogLevel
 {
     Unknown = 0,
     Trace = 1,
@@ -8,12 +7,12 @@ public enum LogLevel
     Info = 4,
     Warning = 5,
     Error = 6,
-    Fatal = 42
+    Fatal = 42,
 }
 
 static class LogLine
 {
-    public static LogLevel ParseLogLevel(string logLine) => logLine.Substring(1, 3) switch
+    public static LogLevel ParseLogLevel(string logLine) => logLine.Substring(1,3) switch
     {
         "TRC" => LogLevel.Trace,
         "DBG" => LogLevel.Debug,
@@ -21,17 +20,22 @@ static class LogLine
         "WRN" => LogLevel.Warning,
         "ERR" => LogLevel.Error,
         "FTL" => LogLevel.Fatal,
-        _ => LogLevel.Unknown
+        _     => LogLevel.Unknown
     };
 
-    public static string OutputForShortLog(LogLevel logLevel, string message) => logLevel switch
+    public static string OutputForShortLog(LogLevel logLevel, string message)
     {
-        LogLevel.Trace => $"{LogLevel.Trace.GetHashCode()}:{message}",
-        LogLevel.Debug => $"{LogLevel.Debug.GetHashCode()}:{message}",
-        LogLevel.Info => $"{LogLevel.Info.GetHashCode()}:{message}",
-        LogLevel.Warning => $"{LogLevel.Warning.GetHashCode()}:{message}",
-        LogLevel.Error => $"{LogLevel.Error.GetHashCode()}:{message}",
-        LogLevel.Fatal => $"{LogLevel.Fatal.GetHashCode()}:{message}",
-        _ => $"{LogLevel.Unknown.GetHashCode()}:{message}"
-    };
+        int shortCode = logLevel switch
+        {
+            LogLevel.Trace   => 1,
+            LogLevel.Debug   => 2,
+            LogLevel.Info    => 4,
+            LogLevel.Warning => 5,
+            LogLevel.Error   => 6,
+            LogLevel.Fatal   => 42,
+            _ => 0
+        };
+
+        return $"{shortCode}:{message}";
+    }
 }
