@@ -1,13 +1,15 @@
-using System;
-
 public class SecurityPassMaker
 {
-    public string GetDisplayName(TeamSupport support) => support switch
+    public string GetDisplayName(TeamSupport support)
     {
-        Security when support.GetType() == typeof(Security) => support.Title + " Priority Personnel",
-        Staff => support.Title,
-        _ => "Too Important for a Security Pass"
-    };
+        if (support is Security s && s is not (SecurityJunior or SecurityIntern or PoliceLiaison))
+            return $"{s.Title} Priority Personnel";
+    
+        if (support is Staff s2)
+            return s2.Title;
+    
+        return "Too Important for a Security Pass";
+    }
 }
 
 /**** Please do not alter the code below ****/
