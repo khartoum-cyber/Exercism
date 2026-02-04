@@ -1,7 +1,5 @@
-using System;
-
 // TODO: define the 'AccountType' enum
-public enum AccountType
+enum AccountType
 {
     Guest,
     User,
@@ -10,13 +8,13 @@ public enum AccountType
 
 // TODO: define the 'Permission' enum
 [Flags]
-public enum Permission : byte
+enum Permission
 {
-    Read = 1 << 0,
-    Write = 1 << 1,
-    Delete = 1 << 2,
-    All = Read | Write | Delete,
-    None = 0
+    None = 0b0000_0000,
+    Read = 0b0000_0001,
+    Write = 0b0000_0010,
+    Delete = 0b0000_0100,
+    All = Read | Write | Delete
 }
 
 static class Permissions
@@ -24,7 +22,7 @@ static class Permissions
     public static Permission Default(AccountType accountType) => accountType switch
     {
         AccountType.Guest => Permission.Read,
-        AccountType.User => Permission.Write | Permission.Read,
+        AccountType.User => Permission.Read | Permission.Write,
         AccountType.Moderator => Permission.All,
         _ => Permission.None
     };
@@ -33,5 +31,5 @@ static class Permissions
 
     public static Permission Revoke(Permission current, Permission revoke) => current & ~revoke;
 
-    public static bool Check(Permission current, Permission check) => current.HasFlag(check);
+    public static bool Check(Permission current, Permission check) => (current & check) == check;
 }
