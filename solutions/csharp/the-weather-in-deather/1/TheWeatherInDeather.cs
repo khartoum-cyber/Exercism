@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-
 public class WeatherStation
 {
     private Reading reading;
-    private List<DateTime> recordDates = [];
-    private List<decimal> temperatures = [];
+    private List<DateTime> recordDates = new List<DateTime>();
+    private List<decimal> temperatures = new List<decimal>();
 
     public void AcceptReading(Reading reading)
     {
@@ -31,20 +27,18 @@ public class WeatherStation
     public bool HasHistory => recordDates.Count > 1;
 
     public Outlook ShortTermOutlook =>
-        reading.Equals(new Reading())
-            ? throw new ArgumentException()
-            : (reading.Pressure < 10m && reading.Temperature < 30m
-                ? Outlook.Cool
-                : (reading.Temperature > 50 ? Outlook.Good : Outlook.Warm));
+        reading.Equals(new Reading()) ? throw new ArgumentException() :
+        reading.Pressure < 10m && reading.Temperature < 30m ? Outlook.Cool : 
+        reading.Temperature > 50 ? Outlook.Good : Outlook.Warm;
 
     public Outlook LongTermOutlook => reading.WindDirection switch
     {
-        WindDirection.Easterly when reading.Temperature > 20 => Outlook.Good,
         WindDirection.Southerly => Outlook.Good,
+        WindDirection.Easterly when reading.Temperature > 20 => Outlook.Good,
         WindDirection.Northerly => Outlook.Cool,
-        WindDirection.Easterly => Outlook.Warm,
+        WindDirection.Easterly when reading.Temperature <= 20 => Outlook.Warm,
         WindDirection.Westerly => Outlook.Rainy,
-         _ => throw new ArgumentException()
+        _ => throw new ArgumentException()
     };
 
     public State RunSelfTest() => reading.Equals(new Reading()) ? State.Bad : State.Good;
