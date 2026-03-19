@@ -1,8 +1,7 @@
-using System;
-
 public class CalculationException : Exception
 {
-    public CalculationException(int operand1, int operand2, Exception inner, string message = default)
+    public CalculationException(int operand1, int operand2, string message, Exception inner) : base(message, inner)
+    // TODO: complete the definition of the constructor
     {
         Operand1 = operand1;
         Operand2 = operand2;
@@ -28,13 +27,9 @@ public class CalculatorTestHarness
             Multiply(x, y);
             return "Multiply succeeded";
         }
-        catch (CalculationException ex) when (ex.Operand1 < 0 && ex.Operand2 < 0)
+        catch (CalculationException ex)
         {
-            return "Multiply failed for negative operands. Arithmetic operation resulted in an overflow.";
-        }
-        catch (CalculationException)
-        {
-            return "Multiply failed for mixed or positive operands. Arithmetic operation resulted in an overflow.";
+            return ex.Message;
         }
     }
 
@@ -44,9 +39,21 @@ public class CalculatorTestHarness
         {
             calculator.Multiply(x, y);
         }
+        catch (ArgumentException ex) when (x < 0 || y < 0)
+        {
+            throw new CalculationException(x, y, "Multiply failed for negative operands.", ex);
+        }
+        catch (OverflowException ex) when (x < 0 && y < 0)
+        {
+            throw new CalculationException(x, y, "Multiply failed for negative operands. Arithmetic operation resulted in an overflow.", ex);
+        }
+        catch (OverflowException ex) when (x > 0 && y > 0)
+        {
+            throw new CalculationException(x, y, "Multiply failed for mixed or positive operands. Arithmetic operation resulted in an overflow.", ex);
+        }
         catch (OverflowException ex)
         {
-            throw new CalculationException(x, y, ex);
+            throw new CalculationException(x, y, "Multiply failed.", ex);
         }
     }
 }
