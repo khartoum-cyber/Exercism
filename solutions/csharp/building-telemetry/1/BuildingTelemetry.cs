@@ -1,10 +1,8 @@
-using System;
-
 public class RemoteControlCar
 {
     private int batteryPercentage = 100;
     private int distanceDrivenInMeters = 0;
-    private string[] sponsors = [];
+    private string[] sponsors = new string[0];
     private int latestSerialNum = 0;
 
     public void Drive()
@@ -18,23 +16,27 @@ public class RemoteControlCar
 
     public void SetSponsors(params string[] sponsors) => this.sponsors = sponsors;
 
-    public string DisplaySponsor(int sponsorNum) => sponsors[sponsorNum];
+    public string DisplaySponsor(int sponsorNum) => this.sponsors[sponsorNum];
 
     public bool GetTelemetryData(ref int serialNum,
         out int batteryPercentage, out int distanceDrivenInMeters)
     {
-        if (serialNum > latestSerialNum)
+        if (serialNum < latestSerialNum)
         {
-            latestSerialNum = serialNum;
-            batteryPercentage = this.batteryPercentage;
-            distanceDrivenInMeters = this.distanceDrivenInMeters;
-            return true;
+            serialNum = latestSerialNum;
+    
+            batteryPercentage = -1;
+            distanceDrivenInMeters = -1;
+    
+            return false;
         }
 
-        serialNum = latestSerialNum;
-        batteryPercentage = -1;
-        distanceDrivenInMeters = -1;
-        return false;
+        latestSerialNum = serialNum;
+    
+        batteryPercentage = this.batteryPercentage;
+        distanceDrivenInMeters = this.distanceDrivenInMeters;
+    
+        return true;
     }
 
     public static RemoteControlCar Buy()
@@ -43,11 +45,20 @@ public class RemoteControlCar
     }
 }
 
-public class TelemetryClient(RemoteControlCar car)
+public class TelemetryClient
 {
-    private RemoteControlCar car = car;
+    private RemoteControlCar car;
 
-    public string GetBatteryUsagePerMeter(int serialNum) => car.GetTelemetryData(ref serialNum, out var battery, out var distance) && distance > 0
-        ? $"usage-per-meter={(100 - battery) / distance}" 
-        : "no data";
+    public TelemetryClient(RemoteControlCar car)
+    {
+        this.car = car;
+    }
+
+    public string GetBatteryUsagePerMeter(int serialNum)
+    {
+        if(!car.GetTelemetryData(ref serialNum, out int batteryPercentage, out int distanceDrivenInMeters) || distanceDrivenInMeters == 0)
+            return "no data";
+        
+        return $"usage-per-meter={(100 - batteryPercentage) / distanceDrivenInMeters}";
+    }
 }
