@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 public class FacialFeatures
 {
     public string EyeColor { get; }
@@ -12,9 +9,13 @@ public class FacialFeatures
         PhiltrumWidth = philtrumWidth;
     }
 
-    public override bool Equals(Object obj) => ReferenceEquals(this, obj) ||  Equals(obj as FacialFeatures);
+    public override bool Equals(object obj)
+    {
+        if (obj is FacialFeatures other)
+            return EyeColor == other.EyeColor && PhiltrumWidth == other.PhiltrumWidth;
 
-    public bool Equals(FacialFeatures other) => other != null && EyeColor == other.EyeColor && PhiltrumWidth == other.PhiltrumWidth;
+        return false;
+    }
 
     public override int GetHashCode() => HashCode.Combine(EyeColor, PhiltrumWidth);
 }
@@ -30,26 +31,33 @@ public class Identity
         FacialFeatures = facialFeatures;
     }
 
-    public override bool Equals(Object obj) => ReferenceEquals(this, obj) || Equals(obj as Identity);
+    public override bool Equals(object obj)
+    {
+        if (obj is Identity other)
+            return Email == other.Email && FacialFeatures.Equals(other.FacialFeatures);
 
-    public bool Equals(Identity other) => other != null && Email.Equals(other.Email) && FacialFeatures.Equals(other.FacialFeatures);
+        return false;
+    }
 
     public override int GetHashCode() => HashCode.Combine(Email, FacialFeatures);
 }
 
 public class Authenticator
 {
-    private readonly Identity _admin = new("admin@exerc.ism", new FacialFeatures("green", 0.9m));
+    HashSet<Identity> identities = new();
+    
+    public static bool AreSameFace(FacialFeatures faceA, FacialFeatures faceB) => faceA.Equals(faceB);
 
-    private readonly HashSet<Identity> _registeredIdentities = new();
+    public bool IsAdmin(Identity identity)
+    {
+        var admin = new Identity("admin@exerc.ism", new FacialFeatures("green", 0.9m));
 
-    public static bool AreSameFace(FacialFeatures faceA, FacialFeatures faceB) => Equals(faceA, faceB);
+        return identity.Equals(admin);
+    }
 
-    public bool IsAdmin(Identity identity) => identity.Equals(_admin);
+    public bool Register(Identity identity) => identities.Add(identity);
 
-    public bool Register(Identity identity) => _registeredIdentities.Add(identity);
+    public bool IsRegistered(Identity identity) => identities.Contains(identity);
 
-    public bool IsRegistered(Identity identity) => _registeredIdentities.Contains(identity);
-
-    public static bool AreSameObject(Identity identityA, Identity identityB) => ReferenceEquals(identityA, identityB);
+    public static bool AreSameObject(Identity identityA, Identity identityB) => System.Object.ReferenceEquals(identityA, identityB);
 }
