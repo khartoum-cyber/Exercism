@@ -1,22 +1,24 @@
-using System;
-
-public class Orm(Database database) : IDisposable
+public class Orm : IDisposable
 {
-    public void Begin() => database.BeginTransaction();
-
-    public void Write(string data)
+    private Database database;
+    public Orm(Database database) => this.database = database;
+    public void Dispose() => database.Dispose();
+    
+    public void Begin() 
     {
-        try
-        {
-            database.Write(data);
-        }
-        catch
-        {
-            database.Dispose();
-        }
+        try {database.BeginTransaction();}
+        catch {database.Dispose();} 
     }
 
-    public void Commit() => database.Dispose();
-
-    public void Dispose() => database.Dispose();
+    public void Write(string data) 
+    {
+        try {database.Write(data);}
+        catch {database.Dispose();}
+    }
+    
+    public void Commit() 
+    {
+        try {database.EndTransaction();}
+        catch {database.Dispose();}   
+    }
 }
