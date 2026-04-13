@@ -1,29 +1,38 @@
-using System;
-using System.Runtime.InteropServices.Marshalling;
-
-public class Orm(Database database)
+public class Orm
 {
+    private Database database;
+
+    public Orm(Database database)
+    {
+        this.database = database;
+    }
+
     public void Write(string data)
     {
-        using var db = database;
-        db.BeginTransaction();
-        db.Write(data);
-        db.EndTransaction();
+        using (database)
+        {
+            database.BeginTransaction();
+            database.Write(data);
+            database.EndTransaction();
+        }
     }
 
     public bool WriteSafely(string data)
     {
-        using var db = database;
-        try
+        using (database)
         {
-            db.BeginTransaction();
-            db.Write(data);
-            db.EndTransaction();
-            return true;
-        }
-        catch(Exception)
-        {
-            return false;
+            try
+            {
+                database.BeginTransaction();
+                database.Write(data);
+                database.EndTransaction();
+                return true;
+            }
+            catch (InvalidOperationException)
+            {
+                //database.Dispose();
+                return false;
+            }
         }
     }
 }
