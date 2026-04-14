@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 public struct Coord
 {
     public Coord(ushort x, ushort y)
@@ -12,40 +8,54 @@ public struct Coord
 
     public ushort X { get; }
     public ushort Y { get; }
-    public double DistanceBetweenCoordsSquared(Coord other) =>
-        Math.Pow(X - other.X, 2) +
-        Math.Pow(Y - other.Y, 2);
 }
 
-public struct Plot(Coord coord1, Coord coord2, Coord coord3, Coord coord4)
+public struct Plot
 {
-    public Coord Coord1 { get; } = coord1;
-    public Coord Coord2 { get; } = coord2;
-    public Coord Coord3 { get; } = coord3;
-    public Coord Coord4 { get; } = coord4;
-    public readonly double LongestSideSquared { get => CalculateLongestSideSquared(coord1, coord2, coord3, coord4); }
+    public Coord A { get; }
+    public Coord B { get; }
+    public Coord C { get; }
+    public Coord D { get; }
 
-    private static double CalculateLongestSideSquared(Coord coord1, Coord coord2, Coord coord3, Coord coord4)
+    public Plot(Coord a, Coord b, Coord c, Coord d)
     {
-        var _sides = new double[4];
-        _sides[0] = coord1.DistanceBetweenCoordsSquared(coord2);
-        _sides[1] = coord2.DistanceBetweenCoordsSquared(coord3);
-        _sides[2] = coord3.DistanceBetweenCoordsSquared(coord4);
-        _sides[3] = coord4.DistanceBetweenCoordsSquared(coord1);
-        return _sides.Max();
+        A = a;
+        B = b;
+        C = c;
+        D = d;
+    }
+    
+    private static double Distance(Coord p1, Coord p2)
+    {
+        int dx = p1.X - p2.X;
+        int dy = p1.Y - p2.Y;
+        return Math.Sqrt(dx * dx + dy * dy);
+    }
+
+    public double LongestSide()
+    {
+        return Math.Max(
+            Math.Max(Distance(A, B), Distance(B, C)),
+            Math.Max(Distance(C, D), Distance(D, A))
+        );
     }
 }
 
 
 public class ClaimsHandler
 {
-    private List<Plot> plots = [];
+    private readonly List<Plot> claims = new();
+    
+    public void StakeClaim(Plot plot) => claims.Add(plot);
 
-    public void StakeClaim(Plot plot) => plots.Add(plot);
+    public bool IsClaimStaked(Plot plot) => claims.Contains(plot);
 
-    public bool IsClaimStaked(Plot plot) => plots.Contains(plot);
+    public bool IsLastClaim(Plot plot) => claims.Count > 0 && claims[^1].Equals(plot);
 
-    public bool IsLastClaim(Plot plot) => plot.Equals(plots.Last());
-
-    public Plot GetClaimWithLongestSide() => plots.MaxBy(p => p.LongestSideSquared);
+    public Plot GetClaimWithLongestSide()
+    {
+        return claims
+            .OrderByDescending(p => p.LongestSide())
+            .First();
+    }
 }
