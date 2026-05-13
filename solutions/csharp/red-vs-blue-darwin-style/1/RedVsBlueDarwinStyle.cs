@@ -1,4 +1,3 @@
-
 namespace RedRemoteControlCarTeam
 {
     public class RemoteControlCar
@@ -54,20 +53,19 @@ namespace BlueRemoteControlCarTeam
     {
         // blue members and API
     }
-}    
+}
 
 namespace Combined
 {
     using Red = RedRemoteControlCarTeam;
     using Blue = BlueRemoteControlCarTeam;
+    
     public static class CarBuilder
     {
-        public static Red.RemoteControlCar BuildRed() =>
-            new(
-                new Red.Motor(), new Red.Chassis(),
-                new Red.Telemetry(), new Red.RunningGear());
+        public static Red.RemoteControlCar BuildRed() => new( new Red.Motor(), new Red.Chassis(), 
+            new Red.Telemetry(), new Red.RunningGear() );
 
-        public static Blue.RemoteControlCar BuildBlue() =>
-            new(new Blue.Motor(), new Blue.Chassis(), new Blue.Telemetry());
+        public static Blue.RemoteControlCar BuildBlue() => new( new Blue.Motor(), new Blue.Chassis(), 
+            new Blue.Telemetry() );
     }
 }
