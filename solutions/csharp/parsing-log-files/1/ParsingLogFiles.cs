@@ -1,33 +1,27 @@
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 public class LogParser
 {
-    private readonly string validLineRegexPattern = @"^\[(TRC|DBG|INF|WRN|ERR|FTL)\]";
-    private readonly string splitLineRegexPattern = @"<[\^*=-]+>";
-    private readonly string quotedPasswordRegexPattern = @""".*password.*""";
-    private readonly string endOfLineRegexPattern = @"end-of-line\d+";
-    private readonly string weakPasswordRegexPattern = @"password\w+";
+    
+    public bool IsValidLine(string text) => Regex.IsMatch(text, @"^\[(TRC|DBG|INF|WRN|ERR|FTL)\]");
 
-    public bool IsValidLine(string text) => Regex.IsMatch(text, validLineRegexPattern);
+    public string[] SplitLogLine(string text) => Regex.Split(text, @"<[=*^-]*>");
 
-    public string[] SplitLogLine(string text) => Regex.Split(text, splitLineRegexPattern);
+    public int CountQuotedPasswords(string lines) => Regex.Matches(lines, @"""[^""]*password[^""]*""", RegexOptions.IgnoreCase).Count;
 
-    public int CountQuotedPasswords(string lines) => Regex.Matches(lines, quotedPasswordRegexPattern, RegexOptions.IgnoreCase).Count;
-
-    public string RemoveEndOfLineText(string line) => Regex.Replace(line, endOfLineRegexPattern, string.Empty);
+    public string RemoveEndOfLineText(string line) => Regex.Replace(line, @"end-of-line\d+", "");
 
     public string[] ListLinesWithPasswords(string[] lines)
     {
-        var processedLines = new List<string>();
-        foreach (string line in lines)
-        {
-            Match passwordMatch = Regex.Match(line, weakPasswordRegexPattern, RegexOptions.IgnoreCase);
-            if (passwordMatch == Match.Empty)
-                processedLines.Add($"--------: {line}");
-            else
-                processedLines.Add($"{passwordMatch.Value}: {line}");
-        }
-        return processedLines.ToArray();
+        return lines
+            .Select(line =>
+            {
+                Match match = Regex.Match(line, @"password\w+", RegexOptions.IgnoreCase);
+    
+                return match == Match.Empty
+                    ? $"--------: {line}"
+                    : $"{match.Value}: {line}";
+            })
+            .ToArray();
     }
 }
