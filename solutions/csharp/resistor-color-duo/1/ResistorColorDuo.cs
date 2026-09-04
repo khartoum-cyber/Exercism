@@ -1,23 +1,9 @@
-using System;
-using System.Text;
-
 public static class ResistorColorDuo
 {
-    private static readonly StringBuilder sb = new();
-    private enum Colors
+        private static readonly List<string> ColorValues = new() { "black" , "brown" , "red" , "orange" , "yellow" , "green" , "blue" , "violet" , "grey" , "white" };
+    
+    public static int Value(string[] colors)
     {
-        Black,
-        Brown,
-        Red,
-        Orange,
-        Yellow,
-        Green,
-        Blue,
-        Violet,
-        Grey,
-        White,
+        return ColorValues.IndexOf(colors[0]) * 10 + ColorValues.IndexOf(colors[1]);
     }
-    public static int Value(string[] colors) => Value(colors[0]) * 10 + Value(colors[1]);
-
-    private static int Value(string color) => (int)Enum.Parse<Colors>(color, ignoreCase: true);
 }
