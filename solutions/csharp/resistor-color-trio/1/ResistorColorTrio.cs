@@ -1,20 +1,25 @@
-using System;
-
 public static class ResistorColorTrio
 {
-    public enum ResistorColor
+    private static readonly List<string> ColorValues = new()
     {
-        Black, Brown, Red, Orange, Yellow, Green, Blue, Violet, Grey, White
-    }
-
+        "black", "brown", "red", "orange", "yellow",
+        "green", "blue", "violet", "grey", "white"
+    };
+    
     public static string Label(string[] colors)
     {
-        var value = Value(colors);
-        return value >= 1000 ? $"{value / 1000} kiloohms" : $"{value} ohms";
+        long value = (ColorValues.IndexOf(colors[0]) * 10L + ColorValues.IndexOf(colors[1]));
+
+        int multiplier = ColorValues.IndexOf(colors[2]);
+
+        value *= (long)Math.Pow(10, multiplier);
+
+        return value switch
+        {
+            >= 1_000_000_000 => $"{value / 1_000_000_000} gigaohms",
+            >= 1_000_000 => $"{value / 1_000_000} megaohms",
+            >= 1_000 => $"{value / 1_000} kiloohms",
+            _ => $"{value} ohms"
+        };
     }
-
-    private static int Value(string[] colors) =>
-        (Value(colors[0]) * 10 + Value(colors[1])) * (int)Math.Pow(10, Value(colors[2]));
-
-    private static int Value(string color) => (int)Enum.Parse<ResistorColor>(color, true);
 }
